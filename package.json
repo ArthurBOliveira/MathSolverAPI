@@ -1,0 +1,22 @@
+{
+  "name": "mathsolver-api",
+  "version": "1.0.0",
+  "description": "Api for the game MathSolver",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arhur B. de Oliveira",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.15.5",
+    "moment": "^2.19.1",
+    "path": "^0.12.7",
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {
+    "expect": "^1.20.2",
+    "mocha": "^3.5.3",
+    "nodemon": "^1.12.1"
+  }
+}
