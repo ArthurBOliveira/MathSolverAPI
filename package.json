@@ -4,10 +4,20 @@
   "description": "Api for the game MathSolver",
   "main": "server/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server/server.js",
+    "test": "mocha server/**/*.test.js",
+    "test-watch": "nodemon --exec 'npm test'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArthurBOliveira/MathSolverAPI.git"
   },
   "author": "Arhur B. de Oliveira",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ArthurBOliveira/MathSolverAPI/issues"
+  },
+  "homepage": "https://github.com/ArthurBOliveira/MathSolverAPI#readme",
   "dependencies": {
     "express": "^4.15.5",
     "moment": "^2.19.1",
