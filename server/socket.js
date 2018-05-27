@@ -6,40 +6,37 @@ let players = new Players();
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
+        console.log('Someone connected');
+
         socket.on('join', (params, callback) => {
-            console.log(params);
+            // console.log(params);
             if (!isRealString(params.name) || !isRealString(params.room))
-                return callback('');
+                return;
             socket.join(params.room);
             players.removePlayer(socket.id);
             players.addPlayer(socket.id, params.name, params.room);
             socket.broadcast.to(params.room).emit('newPlayerServer', params);
-            callback(players.getPlayerList(params.name, params.room));
+
+            var problem = problemGen(params.room);
+            // console.log(problem);
+            return callback(problem);
         });
 
         //Problem Creator
         socket.on('askForQuestion', (room) => {
             var problem = problemGen(room);
-            Console.log(problem);
+            console.log(problem);
 
-            io.to(position.room).emit('newQuestion', problem);
+            io.to(problem.room).emit('newQuestion', problem);
         });
-        
 
-        //Update Players Position
-        socket.on('updatePosition', (position) => {
-            // console.log(position);
-            io.to(position.room).emit('moveFromServer', position);
+        //CheckAnswer
+        socket.on('checkAnswer', (problem, answer) => {
+            console.log(problem);
+
+            io.to(problem.room).emit('newQuestion', problem);
         });
-        //Player Actions
-        socket.on('playerAction', (action) => {
-            io.to(action.room).emit('playerActionServer', action);
-        });
-        //Update Player Score
-        socket.on('updatePlayerScore', (score) => {
-            var player = players.updatePlayerScore(socket.id, score);
-            io.to(player.room).emit('updatePlayerScoreServer', player);
-        });
+
         socket.on('disconnect', () => {
             var player = players.removePlayer(socket.id);
             if (player) {

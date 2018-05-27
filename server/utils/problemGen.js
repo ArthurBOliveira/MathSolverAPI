@@ -1,4 +1,4 @@
-var problemGen = room => {
+var problemGen = (room) => {
   var x = Math.floor(Math.random() * 10 + 1);
   var y = Math.floor(Math.random() * 10 + 1);  
   var rng = Math.floor(Math.random() * 2 + 1);
@@ -39,4 +39,4 @@ var problemGen = room => {
   return result;
 };
 
-export default { problemGen };
+module.exports = { problemGen };

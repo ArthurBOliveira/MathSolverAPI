@@ -10,6 +10,8 @@ let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 
+require('./socket')(io);
+
 app.use(express.static(publicPath));
 
 server.listen(port, () => {
