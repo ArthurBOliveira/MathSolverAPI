@@ -1,16 +1,18 @@
 let socket = io();
 let _problem;
+let _score;
 
+//Sockets
 socket.on('connect', function () {
     let params = jQuery.deparam(window.location.search);
-    console.log(params);
 
     socket.emit('join', params, function (problem) {
-        console.log('joined');
-        console.log(problem);
         if(problem.room !== params.room) return;
     
+        _score = 0;
+
         _problem = problem;
+        console.log(_problem);
 
         $('#lblProblem').html(problem.problem);
     
@@ -19,75 +21,52 @@ socket.on('connect', function () {
     });
 });
 
-socket.on('newQuestion', function(problem) {
-    if(problem.room !== room) return;
+socket.on('newQuestion', function(params) {
+    if(params.room !== _problem.room) return;
+    console.log(params);
 
-    $('#lblProblem').val();
+    _problem = params;
+
+    $('#lblProblem').html(params.problem);
+    $('#lblResult').html("");
+    $('#lblStatus').html("");
 
     $('#btnCorrect').removeAttr("disabled");
     $('#btnIncorrect').removeAttr("disabled");
 });
 
-socket.on('updateUserList', function (users) {
-    var ol = $('<ol></ol>');
+socket.on('questionAnswered', function(room) {
+    if(room !== _problem.room) return;
+    console.log("to late!");
 
-    users.forEach(function (user) {
-        ol.append($('<li></li>').text(user));
-    });
+    $('#btnIncorrect').attr("disabled","disabled");
+    $('#btnCorrect').attr("disabled","disabled");
 
-    $('#users').html(ol);
+    $('#lblResult').html("Question already Answered");
+    $('#lblStatus').html("Await next Question");
 });
 
 socket.on('disconnect', function () {
     console.log('Disconnected from Server');
 });
 
+//Functions
+$('#btnCorrect').on('click', function (e) { SendAnswer(true); });
 
-$('#btnCorrect').on('click', function (e) {
-    e.preventDefault();
+$('#btnIncorrect').on('click', function (e) { SendAnswer(false); });
+
+function SendAnswer(answer) {
     $('#btnIncorrect').attr("disabled","disabled");
     $('#btnCorrect').attr("disabled","disabled");
 
-    console.log('answer!');
-
     socket.emit('checkAnswer', {
         problem: _problem,
-        answer: true
-    }, function (msg) {
-        console.log(msg);
+        answer: answer
+    }, function (answer) {
+        console.log(answer);
+
+        _score = answer.score;
+        $('#lblScore').html(_score);
+        $('#lblStatus').html(answer.status);
     });
-});
-
-$('#btnIncorrect').on('click', function (e) {
-    e.preventDefault();
-    $('#btnIncorrect').attr("disabled","disabled");
-    $('#btnCorrect').attr("disabled","disabled");
-
-    console.log('answer!');
-
-    socket.emit('checkAnswer', {
-        problem: _problem,
-        answer: false
-    }, function (msg) {
-        console.log(msg);
-    });
-});
-
-var locationButton = $('#send-location');
-locationButton.on('click', function () {
-    if (!navigator.geolocation) return alert('No geolocation!');
-
-    locationButton.attr('disabled', 'disabled').text('Sending...');
-
-    navigator.geolocation.getCurrentPosition(function (position) {
-        socket.emit('createLocationMessage', {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-        });
-
-        locationButton.removeAttr('disabled').text('Sending location');
-    }, function (position) {
-        locationButton.removeAttr('disabled').text('Sending location');
-        return alert('Unable to fetch location!');
-    });
-});
+}

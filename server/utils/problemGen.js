@@ -33,7 +33,8 @@ var problemGen = (room) => {
   var result = {
       room,
       problem,
-      isCorrect
+      isCorrect,
+      completed: false,
   }
 
   return result;
