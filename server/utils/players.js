@@ -44,14 +44,10 @@ class Players {
 
   getPlayerList(room) {
     var players = this.players.filter(player => player.room === room);
-    var namesArray =
-      this.players.map(player => player.name).length === 0
-        ? undefined
-        : players.map(player => player.name).toString();
 
-    // console.log(namesArray);
+    players.sort(function(a,b) {return (a.score < b.score) ? 1 : ((b.score < a.score) ? -1 : 0);} ); 
 
-    return namesArray;
+    return players;
   }
 
   getCurrentRooms() {

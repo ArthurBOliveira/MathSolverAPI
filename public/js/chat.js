@@ -12,7 +12,6 @@ socket.on('connect', function () {
         _score = 0;
 
         _problem = problem;
-        console.log(_problem);
 
         $('#lblProblem').html(problem.problem);
     
@@ -21,9 +20,18 @@ socket.on('connect', function () {
     });
 });
 
+socket.on('updateScores', function(players) {
+    var ol = $('<ul></ul>');
+
+    players.forEach(function (players) {
+        ol.append($('<li></li>').text(players.name + ': ' + players.score ));
+    });
+
+    $('#players').html(ol);
+});
+
 socket.on('newQuestion', function(params) {
     if(params.room !== _problem.room) return;
-    console.log(params);
 
     _problem = params;
 
@@ -37,7 +45,6 @@ socket.on('newQuestion', function(params) {
 
 socket.on('questionAnswered', function(room) {
     if(room !== _problem.room) return;
-    console.log("to late!");
 
     $('#btnIncorrect').attr("disabled","disabled");
     $('#btnCorrect').attr("disabled","disabled");
@@ -63,8 +70,6 @@ function SendAnswer(answer) {
         problem: _problem,
         answer: answer
     }, function (answer) {
-        console.log(answer);
-
         _score = answer.score;
         $('#lblScore').html(_score);
         $('#lblStatus').html(answer.status);

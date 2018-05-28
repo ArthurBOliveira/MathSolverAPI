@@ -14,7 +14,8 @@ module.exports = (io) => {
             socket.join(params.room);
             players.removePlayer(socket.id);
             players.addPlayer(socket.id, params.name, params.room, 0);
-            socket.broadcast.to(params.room).emit('newPlayerServer', params);
+            var currPlayers = players.getPlayerList(params.room);
+            io.to(params.room).emit('updateScores', currPlayers);
 
             var problem = problemGen(params.room);
             return callback(problem);
@@ -30,7 +31,8 @@ module.exports = (io) => {
             let p = players.getPlayer(socket.id);  
             
             let problem = problems.getProblem(params.problem.room);
-            console.log(problem);
+
+            if(typeof problem === "undefined") return;
 
             //Check if problem is already completed.
             if(!problem.completed)  {
@@ -82,7 +84,6 @@ module.exports = (io) => {
     (function BroadcastQuestions() {
         let rooms = players.getCurrentRooms();
 
-        console.log(rooms);
         if(rooms.length > 0)
             rooms.forEach((element) => EmitNewQuestion(element));
 
@@ -94,8 +95,9 @@ module.exports = (io) => {
 
         problems.removeProblem(room);
         problems.addProblem(room, newProblem.problem, newProblem.isCorrect, false);
-        console.log(problems.problems);
 
         io.to(room).emit('newQuestion', newProblem);
+        var currPlayers = players.getPlayerList(room);
+        io.to(room).emit('updateScores', currPlayers);
     }
 }
