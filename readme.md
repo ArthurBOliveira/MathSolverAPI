@@ -1,5 +1,5 @@
 # MathSolver-Api
-The complete code for the MathSolver game. 
+The complete code for the MathSolver game. [Play it Here!](http://mathsolver-api.herokuapp.com/)
 
 ## Setting up
 - Clone the repository
