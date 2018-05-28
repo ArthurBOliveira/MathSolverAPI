@@ -8,6 +8,7 @@ let problems = new Problems();
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
+        //Player join a room
         socket.on('join', (params, callback) => {
             if (!isRealString(params.name) || !isRealString(params.room))
                 return;
@@ -21,21 +22,19 @@ module.exports = (io) => {
             return callback(problem);
         });
 
-        //Problem Creator
-        socket.on('askForQuestion', (room) => {
-            EmitNewQuestion(room)
-        });
-
         //CheckAnswer
-        socket.on('checkAnswer', (params, callback) => {            
+        socket.on('checkAnswer', (params, callback) => {
+            //Get the Player connected
             let p = players.getPlayer(socket.id);  
             
+            //Get the Current problem of that Room
             let problem = problems.getProblem(params.problem.room);
 
             if(typeof problem === "undefined") return;
 
             //Check if problem is already completed.
             if(!problem.completed)  {
+                //Check if the Player answered correctly
                 if(params.problem.isCorrect === params.answer) {
                     let score = p.score + 1;
                     players.updatePlayerScore(p.id, score);
@@ -51,6 +50,7 @@ module.exports = (io) => {
                         score: score
                     };
 
+                    //Return the status for the Player
                     return callback(answer);
                 } else {
                     let score = p.score - 1;
@@ -61,6 +61,7 @@ module.exports = (io) => {
                         score: score
                     };
 
+                    //Return the status for the Player
                     return callback(answer);
                 }
             } else {
@@ -69,10 +70,12 @@ module.exports = (io) => {
                     score: p.score
                 };
 
+                //Return the status for the Player
                 return callback(answer);
             }            
         });
 
+        //Remove player disconnecting
         socket.on('disconnect', () => {
             var player = players.removePlayer(socket.id);
             if (player) {
@@ -81,6 +84,7 @@ module.exports = (io) => {
         });
     });
 
+    //Loop to genereate the Problems for each Room every 5 seconds
     (function BroadcastQuestions() {
         let rooms = players.getCurrentRooms();
 
@@ -90,14 +94,21 @@ module.exports = (io) => {
         setTimeout(BroadcastQuestions, 5000);
     })();
 
+    //Generate a new Problem for the room, store it and broadcast it to the Room
+    //Also broadcast the Players current scores
     function EmitNewQuestion(room) {
+        //Generate a new Problem
         let newProblem = problemGen(room);
 
+        //Replace the Problem of the Room
         problems.removeProblem(room);
         problems.addProblem(room, newProblem.problem, newProblem.isCorrect, false);
 
+        //Broadcast the Problem to the Room
         io.to(room).emit('newQuestion', newProblem);
-        var currPlayers = players.getPlayerList(room);
+
+        //Get and broadcast the Players current scores
+        let currPlayers = players.getPlayerList(room);
         io.to(room).emit('updateScores', currPlayers);
     }
 }
