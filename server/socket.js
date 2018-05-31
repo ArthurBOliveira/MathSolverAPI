@@ -5,6 +5,7 @@ const {problemGen} = require('./utils/problemGen');
 
 let players = new Players();
 let problems = new Problems();
+let time = 5;
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -111,4 +112,13 @@ module.exports = (io) => {
         let currPlayers = players.getPlayerList(room);
         io.to(room).emit('updateScores', currPlayers);
     }
+
+    //Loop to align the Time counting in every Client
+    (function AlignClientTime() {        
+        io.sockets.emit('AlignClientTime', time);
+
+        time = time === 1 ? 5 : time - 1;
+
+        setTimeout(AlignClientTime, 1000);
+    })();
 }

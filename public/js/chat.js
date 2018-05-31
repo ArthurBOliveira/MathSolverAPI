@@ -36,7 +36,6 @@ socket.on('newQuestion', function(params) {
     _problem = params;
 
     $('#lblProblem').html(params.problem);
-    $('#lblResult').html("");
     $('#lblStatus').html("");
 
     $('#btnCorrect').removeAttr("disabled");
@@ -49,8 +48,11 @@ socket.on('questionAnswered', function(room) {
     $('#btnIncorrect').attr("disabled","disabled");
     $('#btnCorrect').attr("disabled","disabled");
 
-    $('#lblResult').html("Question already Answered");
     $('#lblStatus').html("Await next Question");
+});
+
+socket.on('AlignClientTime', function(time) {
+    $('#lblTime').html(time);
 });
 
 socket.on('disconnect', function () {
